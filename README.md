@@ -6,7 +6,7 @@
 
 ---
 
-An extension to visually jump across tabs.
+A Chrome extension to visually jump across tabs. I wanted to see if I could do it with my current Chrome extension knowledge.
 
 ## What does it do?
 
