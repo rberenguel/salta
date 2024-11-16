@@ -31,3 +31,11 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
   delete screenshots[tabId];
   chrome.storage.local.set({ screenshots: screenshots });
 });
+
+chrome.runtime.onMessageExternal.addListener(
+  (request, sender, sendResponse) => {
+    if (request.message === "open-tab-switcher") {
+      chrome.tabs.create({ url: "src/tabs.html" });
+    }
+  },
+);

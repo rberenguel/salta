@@ -11,10 +11,10 @@
     "max_width": 0
   },
   "commands": {
-    "jump": {
+    "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Space",
-        "mac": "MacCtrl+Space"
+        "default": "Ctrl+J",
+        "mac": "MacCtrl+J"
       },
       "description": "Jump tabs, potentially"
     }
@@ -22,5 +22,12 @@
   "background": {
     "service_worker": "src/background.js",
     "type": "module"
+  },
+  "externally_connectable": {
+    "ids": ["pbbhffhddmldgddhpnlfncmehlcidllh"]
+  },
+  "icons": {
+    "512": "media/icon512.png",
+    "128": "media/icon128.png"
   }
 }

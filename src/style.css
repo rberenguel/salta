@@ -1,27 +1,31 @@
 body {
-  margin: 0.5em;
+  margin: 0;
+  background-color: #777;
+  overflow: hidden;
 }
 
 #screenshots-container {
   display: grid;
   gap: 1em;
+  padding: 0.5em;
 }
 
-.image-container {
+.image-wrapper {
   overflow: hidden;
+  border-radius: 0.5em;
+  border: 2px solid black;
+  box-sizing: border-box;
 }
 
-.image-container > div {
-  margin: 0;
+.selected {
+  border: 2px solid #ca0 !important;
 }
 
 .screenshot-thumbnail {
-  border: 1px solid black;
-  border-radius: 0.3em;
-  width: 105%;
-  height: auto;
-  top: 0.1em;
+  width: 100%;
+  min-height: 100%;
   cursor: pointer;
+  position: relative;
 }
 
 .screenshot-info {
@@ -35,7 +39,7 @@ body {
   border-radius: 0.2em;
   color: white;
   padding: 5px;
-  font-size: 16px;
+  font-size: clamp(12px, 100%, 20px); 
   font-family: "Monoid";
 }
 

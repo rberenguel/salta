@@ -4,7 +4,12 @@ let shouldHover = false;
 
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
-    const numTabs = tabs.length;
+    const numTabs = tabs.filter(
+      (t) =>
+        !(t.title === "chrome://newtab") &&
+        !t.url.startsWith("chrome://") &&
+        !t.url.endsWith("src/tabs.html")
+    ).length; // TODO(me) This should be defined once
 
     const numCols = Math.ceil(Math.sqrt(numTabs));
     const numRows = Math.ceil(numTabs / numCols);
@@ -16,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let searchText = "";
 
-    let placeholderish
+    let placeholderish;
 
     chrome.storage.local.get("screenshots", function (data) {
       if (data.screenshots) {
@@ -36,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const imgContainers =
               container.querySelectorAll(".image-container");
             const matches = Array.from(imgContainers).filter(
-              (c) => c.dataset["selected"] === "true",
+              (c) => c.dataset["selected"] === "true"
             );
             if (matches.length === 1) {
               const id = matches[0].dataset["tabId"];
@@ -63,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (url.endsWith("src/tabs.html")) {
             continue;
           }
-          
+
           if (screenshots[id]) {
             const row = Math.floor(imgIndex / numCols);
             const col = imgIndex % numCols;
@@ -79,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
             imgContainer.appendChild(img);
 
             const imgWrapper = document.createElement("div");
+            imgWrapper.classList.add("image-wrapper");
             imgWrapper.style.transition =
               "transform 0.5s ease, filter 0.5s ease";
             imgWrapper.style.position = "relative";
@@ -112,11 +118,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
               }
               const siblings = Array.from(container.children).filter(
-                (child) => child !== imgContainer,
+                (child) => child !== imgContainer
               );
               siblings.forEach(
-                (sibling) =>
-                  (sibling.style.filter = "grayscale(1) blur(0.5em)"),
+                (sibling) => (sibling.style.filter = "grayscale(1) blur(0.5em)")
               );
               imgWrapper.style.transform = `scale(1.5) translate(${translateX}, ${translateY})`;
               imgWrapper.style.zIndex = "1000";
@@ -145,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
               imgWrapper.style.zIndex = "";
               imgContainer.style.zIndex = "";
               const siblings = Array.from(container.children).filter(
-                (child) => child !== imgContainer,
+                (child) => child !== imgContainer
               );
               siblings.forEach((sibling) => (sibling.style.filter = ""));
             });
@@ -159,18 +164,18 @@ document.addEventListener("DOMContentLoaded", function () {
             infoDiv.dataset["title"] = tab.title;
             imgWrapper.appendChild(infoDiv);
             if (screenshot === undefined) {
-                if(placeholderish){
-                    img.src = placeholderish;
-                    img.style.filter = "blur(8em)"
-                } else {
-                    img.src =
-                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
-                }
-              
+              if (placeholderish) {
+                img.src = placeholderish;
+                img.dataset["filter"] = "blur(8em)";
+                img.style.filter = img.dataset["filter"];
+              } else {
+                img.src =
+                  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
+              }
             } else {
-                if(!placeholderish){
-                    placeholderish = screenshot
-                }
+              if (!placeholderish) {
+                placeholderish = screenshot;
+              }
               img.src = screenshot;
             }
             img.alt = `Screenshot of ${url}`;
@@ -198,29 +203,87 @@ document.addEventListener("DOMContentLoaded", function () {
           chrome.storage.local.set({ screenshots: screenshots });
         }
       }
+      uniformImages();
     });
   });
 });
 
+function uniformImages() {
+  const imgs = container.querySelectorAll(".image-container img");
+  const wrappers = container.querySelectorAll(".image-wrapper");
+  let ws = {};
+  let hs = {};
+  console.log(imgs);
+  for (let img of imgs) {
+    const cbr = img.getBoundingClientRect();
+    const w = cbr.width;
+    const h = cbr.height;
+    ws[w] = (ws[w] || 0) + 1; // Increment count or initialize to 1
+    hs[h] = (hs[h] || 0) + 1;
+  }
+  let maxWCount = 0;
+  let mostCommonW = null;
+  for (const w in ws) {
+    if (ws[w] > maxWCount) {
+      maxWCount = ws[w];
+      mostCommonW = parseFloat(w); // Convert string key to number
+    }
+  }
+
+  // Find the most common height
+  let maxHCount = 0;
+  let mostCommonH = null;
+  for (const h in hs) {
+    if (hs[h] > maxHCount) {
+      maxHCount = hs[h];
+      mostCommonH = parseFloat(h); // Convert string key to number
+    }
+  }
+
+  for (let wrap of wrappers) {
+    wrap.style.width = `${mostCommonW}px`;
+    wrap.style.height = `${mostCommonH}px`;
+  }
+}
+
 function filterTabs(text) {
-  const imgContainers = container.querySelectorAll(".image-container");
-  imgContainers.forEach((imgContainer, index) => {
+  const imgContainers = Array.from(
+    container.querySelectorAll(".image-container")
+  );
+  imgContainers.map((imgContainer) => {
     const img = imgContainer.querySelector("img");
+    const wrapper = imgContainer.querySelector(".image-wrapper");
     const infoDiv = imgContainer.querySelector(".screenshot-info");
     const tabTitle = infoDiv.dataset["title"];
     const tabURL = infoDiv.dataset["url"];
+    const baseFilter = img.dataset["filter"] ?? "";
+    const saturation = text.length // Math.sqrt was a bit too slow
+    const filter = `saturate(${saturation})`;
     if (
       tabTitle.toLowerCase().includes(text.toLowerCase()) ||
       tabURL.toLowerCase().includes(text.toLowerCase())
     ) {
-      img.style.filter = "";
-      img.style.filter = "saturate(1.2)";
+        console.log(`${filter} ${baseFilter}`)
+      img.style.filter = `${filter} ${baseFilter}`;
       imgContainer.dataset["hovers"] = true;
-      imgContainer.dataset["selected"] = "true";
+      imgContainer.dataset["selected"] = true;
+      wrapper.classList.add("selected");
+      const shadow = 2/text.length
+      wrapper.style.filter = `drop-shadow(0 0 ${shadow}em #ca0)`
     } else {
-      img.style.filter = "grayscale(1) blur(0.2em)";
+    const blur = text.length*0.1
+      img.style.filter = `saturate(${1/saturation}) blur(${blur}em) ${baseFilter}`;
       imgContainer.dataset["hovers"] = false;
-      imgContainer.dataset["selected"] = "false";
+      imgContainer.dataset["selected"] = false;
+      wrapper.classList.remove("selected");
+      wrapper.style.filter = ""
+    }
+    if (!text) {
+      img.style.filter = `${baseFilter}`;
+      imgContainer.dataset["hovers"] = true;
+      imgContainer.dataset["selected"] = true;
+      wrapper.classList.remove("selected");
+      wrapper.style.filter = ""
     }
   });
   const filterTextElement = document.getElementById("filter-text");
