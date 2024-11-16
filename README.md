@@ -15,7 +15,7 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
 - Clicking any of the images takes you to that tab.
 - Pressing `Ctrl` or `Tab` will enable/disable zoom-on-hover on the screenshots.
 - Typing anything in the page will filter pages containing that text in the title or URL.
-  - Matching tabs are highlighted.
+  - Matching tabs are highlighted (highlighted border, hypersaturated).
   - If zoom-on-hover is enabled, only highlighted tabs will get it.
   - If only one tab matches, pressing enter opens it.
   - Press `Escape` to cancel, or delete to remove text.
@@ -34,8 +34,19 @@ Click the image to open the video (youtube). If you don't want to do that, you c
   tabs have no valid screenshot. I go around this by picking _any_ of the screenshots seen so far and blurring it heavily, so
   it acts as a placeholder.
 - Although this _can_ be invoked from other extensions (I tried that with [nt](https://www.github.com/rberenguel/nt)), `activeTab` is
-  an annoying permission and will complain about not having been "properly" invoked. So, the page with tabs shows kind of empty and you
+  an annoying permission and will complain about not having been "properly" invoked. So, the page with tabs shows kind of empty, and you
   need to press `Cmd-R` (or whatever you have as "refresh") to get it to show.
+- I have added a small delay after loading all screenshots and before I run a size normalization across all of them. This is hacky.
+
+## TODO
+
+- [ ] Clean up a bit the code.
+- [ ] Can I test anything easily?
+- [ ] Add an `X` so I can cross tabs from this view.
+  - [ ] This requires a refactor of all the internal grid construction logic.
+- [ ] I may need pagination if there are _way_ too many tabs open.
+- [ ] Handle multiple (as in separate) windows.
+- [ ] Add some proper event listener instead of the hacky timeout to resize.
 
 ## Credits
 
