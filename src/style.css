@@ -1,0 +1,55 @@
+body {
+  margin: 0.5em;
+}
+
+#screenshots-container {
+  display: grid;
+  gap: 1em;
+}
+
+.image-container {
+  overflow: hidden;
+}
+
+.image-container > div {
+  margin: 0;
+}
+
+.screenshot-thumbnail {
+  border: 1px solid black;
+  border-radius: 0.3em;
+  width: 105%;
+  height: auto;
+  top: 0.1em;
+  cursor: pointer;
+}
+
+.screenshot-info {
+  position: absolute;
+  bottom: 5%;
+  left: 0;
+  width: 80%;
+  text-align: center;
+  margin-left: 10%;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0.2em;
+  color: white;
+  padding: 5px;
+  font-size: 16px;
+  font-family: "Monoid";
+}
+
+#filter-text {
+  position: fixed;
+  font-family: "Monoid";
+  top: 75vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 1001;
+  display: none;
+}
