@@ -24,7 +24,7 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
 
 Click the image to open the video (youtube). If you don't want to do that, you can find the video in `media/salta-demo-v01.mov`.
 
-[![](https://raw.githubusercontent.com/rberenguel/salta/media/salta-v0.1.jpg)](https://youtu.be/Y5DxPO1nzjE&mode=theatre)
+[![](https://raw.githubusercontent.com/rberenguel/salta/refs/heads/gh-pages/media/salta-v0.1.jpg)](https://youtu.be/Y5DxPO1nzjE&mode=theatre)
 
 ## Caveats
 
