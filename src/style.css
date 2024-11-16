@@ -39,7 +39,7 @@ body {
   border-radius: 0.2em;
   color: white;
   padding: 5px;
-  font-size: clamp(12px, 100%, 20px); 
+  font-size: clamp(12px, 100%, 20px);
   font-family: "Monoid";
 }
 

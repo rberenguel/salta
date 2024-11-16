@@ -15,10 +15,16 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
 - Clicking any of the images takes you to that tab.
 - Pressing `Ctrl` or `Tab` will enable/disable zoom-on-hover on the screenshots.
 - Typing anything in the page will filter pages containing that text in the title or URL.
-    - Matching tabs are highlighted.
-    - If zoom-on-hover is enabled, only highlighted tabs will get it.
-    - If only one tab matches, pressing enter opens it.
-    - Press `Escape` to cancel, or delete to remove text.
+  - Matching tabs are highlighted.
+  - If zoom-on-hover is enabled, only highlighted tabs will get it.
+  - If only one tab matches, pressing enter opens it.
+  - Press `Escape` to cancel, or delete to remove text.
+
+## Demo video
+
+Click the image to open the video (youtube). If you don't want to do that, you can find the video in `media/salta-demo-v01.mov`.
+
+[![](https://raw.githubusercontent.com/rberenguel/salta/media/salta-v0.1)](https://youtu.be/Y5DxPO1nzjE&mode=theatre)
 
 ## Caveats
 
@@ -36,7 +42,7 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
 - Icon: Gemini via Imagen 3.
 - Gemini helped fight with Chrome permissions, but I ended up having to read (again) too much of its documentation. Yes, this is verbatim from [Goita](https://www.github.com/rberenguel/goita). Again.
 - Added the following open source fonts:
-    - [Roboto Mono](https://fonts.google.com/specimen/Roboto+Mono)
-    - [Reforma 1969](https://pampatype.com/reforma) (or from [FontSquirrel](https://www.fontsquirrel.com/fonts/reforma) to see the license)
-    - [Inter](https://rsms.me/inter/)
-    - [Monoid](https://larsenwork.com/monoid/)
+  - [Roboto Mono](https://fonts.google.com/specimen/Roboto+Mono)
+  - [Reforma 1969](https://pampatype.com/reforma) (or from [FontSquirrel](https://www.fontsquirrel.com/fonts/reforma) to see the license)
+  - [Inter](https://rsms.me/inter/)
+  - [Monoid](https://larsenwork.com/monoid/)

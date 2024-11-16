@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
       (t) =>
         !(t.title === "chrome://newtab") &&
         !t.url.startsWith("chrome://") &&
-        !t.url.endsWith("src/tabs.html")
+        !t.url.endsWith("src/tabs.html"),
     ).length; // TODO(me) This should be defined once
 
     const numCols = Math.ceil(Math.sqrt(numTabs));
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const imgContainers =
               container.querySelectorAll(".image-container");
             const matches = Array.from(imgContainers).filter(
-              (c) => c.dataset["selected"] === "true"
+              (c) => c.dataset["selected"] === "true",
             );
             if (matches.length === 1) {
               const id = matches[0].dataset["tabId"];
@@ -118,10 +118,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
               }
               const siblings = Array.from(container.children).filter(
-                (child) => child !== imgContainer
+                (child) => child !== imgContainer,
               );
               siblings.forEach(
-                (sibling) => (sibling.style.filter = "grayscale(1) blur(0.5em)")
+                (sibling) =>
+                  (sibling.style.filter = "grayscale(1) blur(0.5em)"),
               );
               imgWrapper.style.transform = `scale(1.5) translate(${translateX}, ${translateY})`;
               imgWrapper.style.zIndex = "1000";
@@ -150,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
               imgWrapper.style.zIndex = "";
               imgContainer.style.zIndex = "";
               const siblings = Array.from(container.children).filter(
-                (child) => child !== imgContainer
+                (child) => child !== imgContainer,
               );
               siblings.forEach((sibling) => (sibling.style.filter = ""));
             });
@@ -203,7 +204,9 @@ document.addEventListener("DOMContentLoaded", function () {
           chrome.storage.local.set({ screenshots: screenshots });
         }
       }
-      uniformImages();
+      setTimeout(() => {
+        uniformImages();
+      }, 100);
     });
   });
 });
@@ -213,7 +216,6 @@ function uniformImages() {
   const wrappers = container.querySelectorAll(".image-wrapper");
   let ws = {};
   let hs = {};
-  console.log(imgs);
   for (let img of imgs) {
     const cbr = img.getBoundingClientRect();
     const w = cbr.width;
@@ -248,7 +250,7 @@ function uniformImages() {
 
 function filterTabs(text) {
   const imgContainers = Array.from(
-    container.querySelectorAll(".image-container")
+    container.querySelectorAll(".image-container"),
   );
   imgContainers.map((imgContainer) => {
     const img = imgContainer.querySelector("img");
@@ -257,33 +259,33 @@ function filterTabs(text) {
     const tabTitle = infoDiv.dataset["title"];
     const tabURL = infoDiv.dataset["url"];
     const baseFilter = img.dataset["filter"] ?? "";
-    const saturation = text.length // Math.sqrt was a bit too slow
+    const saturation = text.length; // Math.sqrt was a bit too slow
     const filter = `saturate(${saturation})`;
     if (
       tabTitle.toLowerCase().includes(text.toLowerCase()) ||
       tabURL.toLowerCase().includes(text.toLowerCase())
     ) {
-        console.log(`${filter} ${baseFilter}`)
+      console.log(`${filter} ${baseFilter}`);
       img.style.filter = `${filter} ${baseFilter}`;
       imgContainer.dataset["hovers"] = true;
       imgContainer.dataset["selected"] = true;
       wrapper.classList.add("selected");
-      const shadow = 2/text.length
-      wrapper.style.filter = `drop-shadow(0 0 ${shadow}em #ca0)`
+      const shadow = 2 / text.length;
+      wrapper.style.filter = `drop-shadow(0 0 ${shadow}em #ca0)`;
     } else {
-    const blur = text.length*0.1
-      img.style.filter = `saturate(${1/saturation}) blur(${blur}em) ${baseFilter}`;
+      const blur = text.length * 0.1;
+      img.style.filter = `saturate(${1 / saturation}) blur(${blur}em) ${baseFilter}`;
       imgContainer.dataset["hovers"] = false;
       imgContainer.dataset["selected"] = false;
       wrapper.classList.remove("selected");
-      wrapper.style.filter = ""
+      wrapper.style.filter = "";
     }
     if (!text) {
       img.style.filter = `${baseFilter}`;
       imgContainer.dataset["hovers"] = true;
       imgContainer.dataset["selected"] = true;
       wrapper.classList.remove("selected");
-      wrapper.style.filter = ""
+      wrapper.style.filter = "";
     }
   });
   const filterTextElement = document.getElementById("filter-text");
