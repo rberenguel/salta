@@ -1,62 +1,18 @@
+import { textHandler } from "./search.js";
+
 const container = document.getElementById("screenshots-container");
 
-let shouldHover = false;
+let flags = { shouldHover: false };
 
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
-    const numTabs = tabs.filter(
-      (t) =>
-        !(t.title === "chrome://newtab") &&
-        !t.url.startsWith("chrome://") &&
-        !t.url.endsWith("src/tabs.html"),
-    ).length; // TODO(me) This should be defined once
-
-    const numCols = Math.ceil(Math.sqrt(numTabs));
-    const numRows = Math.ceil(numTabs / numCols);
-
-    container.style.display = "grid";
-    container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
-    container.style.gridTemplateRows = `repeat(${numRows},   
-   auto)`;
-
-    let searchText = "";
-
     let placeholderish;
-
     chrome.storage.local.get("screenshots", function (data) {
       if (data.screenshots) {
-        document.addEventListener("keydown", (event) => {
-          console.log(event);
-          console.log(searchText);
-          if (event.key === "Control" || event.key === "Tab") {
-            event.preventDefault();
-            event.stopPropagation();
-            shouldHover = !shouldHover;
-          }
-          if (event.key === "Backspace") {
-            searchText = searchText.slice(0, -1);
-          } else if (event.key === "Escape") {
-            searchText = "";
-          } else if (event.key === "Enter") {
-            const imgContainers =
-              container.querySelectorAll(".image-container");
-            const matches = Array.from(imgContainers).filter(
-              (c) => c.dataset["selected"] === "true",
-            );
-            if (matches.length === 1) {
-              const id = matches[0].dataset["tabId"];
-              chrome.tabs.update(parseInt(id), { active: true });
-              window.close();
-            }
-          } else if (event.key.length === 1) {
-            searchText += event.key;
-          }
-
-          filterTabs(searchText);
-        });
+        document.addEventListener("keydown", textHandler(flags));
         const screenshots = data.screenshots;
         const tabIds = new Set(tabs.map((tab) => tab.id));
-        let imgIndex = 0;
+
         for (const tab of tabs) {
           const { id, url } = tab;
           if (tab.title === "chrome://newtab") {
@@ -70,90 +26,82 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           if (screenshots[id]) {
-            const row = Math.floor(imgIndex / numCols);
-            const col = imgIndex % numCols;
             const { screenshot } = screenshots[id];
             const img = document.createElement("img");
+            img.classList.add("screenshot-thumbnail");
             const infoDiv = document.createElement("div");
 
             const imgContainer = document.createElement("div");
             imgContainer.dataset["hovers"] = true;
             imgContainer.dataset["tabId"] = id;
             imgContainer.classList.add("image-container");
-            imgContainer.style.position = "relative";
             imgContainer.appendChild(img);
 
             const imgWrapper = document.createElement("div");
             imgWrapper.classList.add("image-wrapper");
-            imgWrapper.style.transition =
-              "transform 0.5s ease, filter 0.5s ease";
-            imgWrapper.style.position = "relative";
             imgContainer.appendChild(imgWrapper);
 
             imgWrapper.appendChild(img);
 
-            let translateX = 0;
-            let translateY = 0;
-
-            if (row === 0) {
-              translateY = "40%";
-            } else if (row === numRows - 1) {
-              translateY = "-40%";
-            }
-
-            if (col === 0) {
-              translateX = "40%";
-            } else if (col === numCols - 1) {
-              translateX = "-40%";
-            }
-            img.id = `img-${row}-${col}`;
-            img.style.transition = "transform 0.5s ease, filter 0.5s ease";
-            img.style.position = "relative";
+            const closer = document.createElement("DIV");
+            closer.classList.add("close");
+            closer.innerHTML = "&#x274C;";
+            closer.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              chrome.tabs.remove(id);
+              imgContainer.parentElement.removeChild(imgContainer);
+              uniformImages();
+              addTranslates();
+            });
+            closer.addEventListener("mouseover", (ev) => ev.stopPropagation());
+            imgWrapper.appendChild(closer);
 
             img.addEventListener("mouseover", () => {
               if (imgContainer.dataset["hovers"] !== "true") {
                 return;
               }
-              if (!shouldHover) {
+              if (!flags.shouldHover) {
                 return;
               }
               const siblings = Array.from(container.children).filter(
                 (child) => child !== imgContainer,
               );
-              siblings.forEach(
-                (sibling) =>
-                  (sibling.style.filter = "grayscale(1) blur(0.5em)"),
+              siblings.forEach((sibling) =>
+                sibling.classList.add("gray-blurred"),
               );
-              imgWrapper.style.transform = `scale(1.5) translate(${translateX}, ${translateY})`;
+              const tx = imgWrapper.dataset["tx"];
+              const ty = imgWrapper.dataset["ty"];
+              imgWrapper.style.transform = `scale(1.5) translate(${tx}, ${ty})`;
               imgWrapper.style.zIndex = "1000";
-
               imgContainer.style.zIndex = "1000";
             });
 
             imgContainer.addEventListener("mouseout", (ev) => {
-              if (imgContainer.dataset["hovers"] !== "true") {
-                return;
-              }
-              if (!shouldHover) {
-                return;
-              }
-              if (ev.target === img) {
-                console.log("Weird");
-              }
-              if (ev.target.closest(".screenshot-info")) {
+              if (ev.toElement && ev.toElement.closest(".close")) {
                 ev.stopPropagation();
                 ev.preventDefault();
-                console.log("Trying to stop");
+                return;
+              }
+              if (ev.toElement && ev.toElement.closest(".screenshot-info")) {
+                ev.stopPropagation();
+                ev.preventDefault();
                 return;
               }
               imgWrapper.style.transform = "";
-              imgWrapper.style.boxShadow = "";
               imgWrapper.style.zIndex = "";
               imgContainer.style.zIndex = "";
               const siblings = Array.from(container.children).filter(
                 (child) => child !== imgContainer,
               );
-              siblings.forEach((sibling) => (sibling.style.filter = ""));
+              siblings.forEach((sibling) =>
+                sibling.classList.remove("gray-blurred"),
+              );
+              if (imgContainer.dataset["hovers"] !== "true") {
+                return;
+              }
+              if (!flags.shouldHover) {
+                return;
+              }
             });
             let title = tab.title.slice(0, 30);
             if (tab.title.length > 32) {
@@ -180,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
               img.src = screenshot;
             }
             img.alt = `Screenshot of ${url}`;
-            img.classList.add("screenshot-thumbnail");
 
             imgWrapper.addEventListener("click", function () {
               chrome.tabs.update(parseInt(id), { active: true });
@@ -193,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             container.appendChild(imgContainer);
-            imgIndex++;
           }
 
           for (const id in screenshots) {
@@ -205,6 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
       setTimeout(() => {
+        addTranslates();
         uniformImages();
       }, 100);
     });
@@ -212,87 +159,89 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function uniformImages() {
+  // Reset everything, wait a few milliseconds for it to redraw and then find the
+  // most common image size. Then apply that to every wrapper.
   const imgs = container.querySelectorAll(".image-container img");
   const wrappers = container.querySelectorAll(".image-wrapper");
-  let ws = {};
-  let hs = {};
-  for (let img of imgs) {
-    const cbr = img.getBoundingClientRect();
-    const w = cbr.width;
-    const h = cbr.height;
-    ws[w] = (ws[w] || 0) + 1; // Increment count or initialize to 1
-    hs[h] = (hs[h] || 0) + 1;
+  for (let wrapper of wrappers) {
+    wrapper.style.width = "auto";
+    wrapper.style.height = "auto";
   }
-  let maxWCount = 0;
-  let mostCommonW = null;
-  for (const w in ws) {
-    if (ws[w] > maxWCount) {
-      maxWCount = ws[w];
-      mostCommonW = parseFloat(w); // Convert string key to number
+  setTimeout(() => {
+    let ws = {};
+    let hs = {};
+    for (let img of imgs) {
+      const cbr = img.getBoundingClientRect();
+      const w = cbr.width;
+      const h = cbr.height;
+      ws[w] = (ws[w] || 0) + 1;
+      hs[h] = (hs[h] || 0) + 1;
     }
-  }
-
-  // Find the most common height
-  let maxHCount = 0;
-  let mostCommonH = null;
-  for (const h in hs) {
-    if (hs[h] > maxHCount) {
-      maxHCount = hs[h];
-      mostCommonH = parseFloat(h); // Convert string key to number
+    let maxWCount = 0;
+    let mostCommonW = null;
+    for (const w in ws) {
+      if (ws[w] > maxWCount) {
+        maxWCount = ws[w];
+        mostCommonW = parseFloat(w);
+      }
     }
-  }
 
-  for (let wrap of wrappers) {
-    wrap.style.width = `${mostCommonW}px`;
-    wrap.style.height = `${mostCommonH}px`;
-  }
+    let maxHCount = 0;
+    let mostCommonH = null;
+    for (const h in hs) {
+      if (hs[h] > maxHCount) {
+        maxHCount = hs[h];
+        mostCommonH = parseFloat(h);
+      }
+    }
+    for (let wrap of wrappers) {
+      wrap.style.width = `${mostCommonW}px`;
+      wrap.style.height = `${mostCommonH}px`;
+    }
+  }, 50);
 }
 
-function filterTabs(text) {
+function addTranslates() {
+  // Translates depend on the row, and rows can change when tabs are closed
+  // when pressing the red X icon.
   const imgContainers = Array.from(
     container.querySelectorAll(".image-container"),
   );
-  imgContainers.map((imgContainer) => {
-    const img = imgContainer.querySelector("img");
-    const wrapper = imgContainer.querySelector(".image-wrapper");
-    const infoDiv = imgContainer.querySelector(".screenshot-info");
-    const tabTitle = infoDiv.dataset["title"];
-    const tabURL = infoDiv.dataset["url"];
-    const baseFilter = img.dataset["filter"] ?? "";
-    const saturation = text.length; // Math.sqrt was a bit too slow
-    const filter = `saturate(${saturation})`;
-    if (
-      tabTitle.toLowerCase().includes(text.toLowerCase()) ||
-      tabURL.toLowerCase().includes(text.toLowerCase())
-    ) {
-      console.log(`${filter} ${baseFilter}`);
-      img.style.filter = `${filter} ${baseFilter}`;
-      imgContainer.dataset["hovers"] = true;
-      imgContainer.dataset["selected"] = true;
-      wrapper.classList.add("selected");
-      const shadow = 2 / text.length;
-      wrapper.style.filter = `drop-shadow(0 0 ${shadow}em #ca0)`;
-    } else {
-      const blur = text.length * 0.1;
-      img.style.filter = `saturate(${1 / saturation}) blur(${blur}em) ${baseFilter}`;
-      imgContainer.dataset["hovers"] = false;
-      imgContainer.dataset["selected"] = false;
-      wrapper.classList.remove("selected");
-      wrapper.style.filter = "";
+
+  let imgIndex = 0;
+
+  const numCols = Math.ceil(Math.sqrt(imgContainers.length));
+  const numRows = Math.ceil(imgContainers.length / numCols);
+
+  container.style.display = "grid";
+  container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
+  container.style.gridTemplateRows = `repeat(${numRows},   
+     auto)`;
+
+  for (let container of imgContainers) {
+    const img = container.querySelector("img");
+    const wrapper = container.querySelector(".image-wrapper");
+
+    const row = Math.floor(imgIndex / numCols);
+    const col = imgIndex % numCols;
+
+    let translateX = 0;
+    let translateY = 0;
+
+    if (row === 0) {
+      translateY = "40%";
+    } else if (row === numRows - 1) {
+      translateY = "-40%";
     }
-    if (!text) {
-      img.style.filter = `${baseFilter}`;
-      imgContainer.dataset["hovers"] = true;
-      imgContainer.dataset["selected"] = true;
-      wrapper.classList.remove("selected");
-      wrapper.style.filter = "";
+
+    if (col === 0) {
+      translateX = "40%";
+    } else if (col === numCols - 1) {
+      translateX = "-40%";
     }
-  });
-  const filterTextElement = document.getElementById("filter-text");
-  if (text) {
-    filterTextElement.textContent = text;
-    filterTextElement.style.display = "block";
-  } else {
-    filterTextElement.style.display = "none";
+    img.id = `img-${row}-${col}`;
+    wrapper.dataset["tx"] = translateX;
+    wrapper.dataset["ty"] = translateY;
+    imgIndex++;
   }
 }

@@ -40,10 +40,11 @@ Click the image to open the video (youtube). If you don't want to do that, you c
 
 ## TODO
 
-- [ ] Clean up a bit the code.
+- [x] Clean up a bit the code
+- [ ] Clean up a bit the code (needs more passes)
 - [ ] Can I test anything easily?
-- [ ] Add an `X` so I can cross tabs from this view.
-  - [ ] This requires a refactor of all the internal grid construction logic.
+- [x] Add an `X` so I can cross tabs from this view.
+  - [x] This requires a refactor of all the internal grid construction logic.
 - [ ] I may need pagination if there are _way_ too many tabs open.
 - [ ] Handle multiple (as in separate) windows.
 - [ ] Add some proper event listener instead of the hacky timeout to resize.

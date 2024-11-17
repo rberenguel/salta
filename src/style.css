@@ -10,15 +10,43 @@ body {
   padding: 0.5em;
 }
 
+.image-container {
+  position: relative;
+  transition:
+    width 0.5s ease,
+    height 0.5s ease;
+}
+
 .image-wrapper {
+  position: relative;
   overflow: hidden;
   border-radius: 0.5em;
   border: 2px solid black;
   box-sizing: border-box;
+  transition:
+    transform 0.5s ease,
+    filter 0.5s ease,
+    width 0.5s ease,
+    height 0.5s ease;
+}
+
+.gray-blurred {
+  filter: grayscale(1) blur(0.5em);
 }
 
 .selected {
   border: 2px solid #ca0 !important;
+}
+
+.close {
+  position: absolute;
+  right: 1em;
+  top: 1em;
+  cursor: pointer;
+}
+
+.close:hover {
+  filter: drop-shadow(0 0 0.1em #c11);
 }
 
 .screenshot-thumbnail {
@@ -26,6 +54,9 @@ body {
   min-height: 100%;
   cursor: pointer;
   position: relative;
+  transition:
+    transform 0.5s ease,
+    filter 0.5s ease;
 }
 
 .screenshot-info {
@@ -41,6 +72,7 @@ body {
   padding: 5px;
   font-size: clamp(12px, 100%, 20px);
   font-family: "Monoid";
+  cursor: pointer;
 }
 
 #filter-text {
