@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
             continue;
           }
 
-          const { screenshot } = screenshots[id];
+          const screenshot = screenshots[id] && screenshots[id].screenshot;
           const img = document.createElement("img");
           img.classList.add("screenshot-thumbnail");
           const infoDiv = document.createElement("div");
