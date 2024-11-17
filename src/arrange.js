@@ -49,15 +49,14 @@ function setupGrid() {
 
   const total = imgContainers.length;
   totalPages = Math.trunc(total / maxPerPage);
-  const adjusted = (total % maxPerPage) + 1;
+  const adjusted = Math.min(maxPerPage, total);
 
   const numCols = Math.ceil(Math.sqrt(adjusted));
   const numRows = Math.ceil(adjusted / numCols);
 
   container.style.display = "grid";
   container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
-  container.style.gridTemplateRows = `repeat(${numRows},   
-       auto)`;
+  container.style.gridTemplateRows = `repeat(${numRows}, auto)`;
 
   for (let cont of imgContainers) {
     const page = Math.trunc(imgIndex / maxPerPage);
