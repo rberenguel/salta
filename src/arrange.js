@@ -51,7 +51,7 @@ function setupGrid(settings = {}) {
   ).filter((c) => c.dataset["selected"] === "true");
   let text = `${selectedContainers.length} tabs`;
   if (settings.paging) {
-    text += `    <span style="font-size: 70%;">(page ${currentPage}/${totalPages})</span>`;
+    text += `    <span style="font-size: 70%;">(page ${currentPage+1}/${totalPages+1})</span>`;
   }
   info.innerHTML = text;
   info.style.opacity = "1";
