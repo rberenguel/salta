@@ -18,6 +18,15 @@ body {
   filter: drop-shadow(0 0 0.1em #c11);
 }
 
+#lefty.nohover {
+  z-index: -1;
+}
+
+#lefty.nohover:hover {
+  background: none;
+  filter: none;
+}
+
 #righty {
   position: fixed;
   right: 0;
@@ -30,6 +39,15 @@ body {
 #righty:hover {
   background: linear-gradient(to left, #33333399, #00000000);
   filter: drop-shadow(0 0 0.1em #c11);
+}
+
+#righty.nohover {
+  z-index: -1;
+}
+
+#righty.nohover:hover {
+  background: none;
+  filter: none;
 }
 
 #screenshots-container {

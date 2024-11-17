@@ -50,6 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
             ev.stopPropagation();
             chrome.tabs.remove(id);
             imgContainer.parentElement.removeChild(imgContainer);
+            // TODO(me) this needs the stable logic that I added for search to prevent redrawing.
+            // TODO(me) shadow DOM instead?
             uniformImages();
             setupGrid();
           });
@@ -119,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
               img.style.filter = img.dataset["filter"];
             } else {
               img.src =
-                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
+                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
             }
           } else {
             if (!placeholderish) {

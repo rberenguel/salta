@@ -5,8 +5,9 @@ let searchText = "";
 const container = document.getElementById("screenshots-container");
 
 // This looked great when there was no dynamic filtering:
-// sepia(${opts.sepia}) saturate(${opts.saturation})
-const highlightingFilter = (opts) => ``;
+//
+const highlightingFilter = (opts) =>
+  `sepia(${opts.sepia}) saturate(${opts.saturation})`;
 
 // Note that with dinamic filtering, other tabs no longer show in any way.
 const boringFilter = (opts) =>
@@ -43,6 +44,9 @@ const filterTabs = (text) => {
   const imgContainers = Array.from(
     container.querySelectorAll(".image-container"),
   );
+  const preSelecteds = container.querySelectorAll(
+    '.image-container[data-selected="true"]',
+  ).length;
   imgContainers.map((imgContainer) => {
     const img = imgContainer.querySelector("img");
     const wrapper = imgContainer.querySelector(".image-wrapper");
@@ -91,5 +95,11 @@ const filterTabs = (text) => {
     filterTextElement.style.display = "none";
   }
   setupGrid();
+  const postSelecteds = container.querySelectorAll(
+    '.image-container[data-selected="true"]',
+  ).length;
+  if (preSelecteds == postSelecteds) {
+    return;
+  }
   uniformImages();
 };

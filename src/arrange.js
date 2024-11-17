@@ -31,6 +31,7 @@ document.getElementById("righty").addEventListener("mouseenter", (ev) => {
   if (currentPage > totalPages) {
     currentPage = totalPages;
   }
+
   lastInc = current;
   setupGrid();
 });
@@ -38,13 +39,26 @@ document.getElementById("righty").addEventListener("mouseenter", (ev) => {
 function setupGrid() {
   // Translates depend on the row, and rows can change when tabs are closed
   // when pressing the red X icon.
-  const imgContainers = Array.from(
+
+  const allContainers = Array.from(
+    container.querySelectorAll(".image-container"),
+  );
+
+  const selectedContainers = Array.from(
     container.querySelectorAll(".image-container"),
   ).filter((c) => c.dataset["selected"] === "true");
 
-  Array.from(container.querySelectorAll(".image-container"))
-    .filter((c) => c.dataset["selected"] === "false")
-    .map((c) => (c.style.display = "none"));
+  let imgContainers;
+
+  if (allContainers.length > maxPerPage) {
+    imgContainers = selectedContainers;
+
+    Array.from(container.querySelectorAll(".image-container"))
+      .filter((c) => c.dataset["selected"] === "false")
+      .map((c) => (c.style.display = "none"));
+  } else {
+    imgContainers = allContainers;
+  }
 
   let imgIndex = 0;
 
@@ -85,19 +99,23 @@ function setupGrid() {
     wrapper.dataset["tx"] = translateX;
     wrapper.dataset["ty"] = translateY;
     wrapper.dataset["page"] = page;
-    console.log(currentPage, imgIndex, page, page == currentPage);
     if (page == currentPage) {
       cont.style.display = "";
     } else {
       cont.style.display = "none";
     }
-    console.log(cont.dataset);
     if (cont.dataset["selected"] === "false") {
-      console.log("hiding");
-      console.log(cont);
-      cont.style.display = "none";
+      //cont.style.display = "none";
     }
     imgIndex++;
+  }
+
+  if (totalPages < 1) {
+    document.getElementById("lefty").classList.add("nohover");
+    document.getElementById("righty").classList.add("nohover");
+  } else {
+    document.getElementById("lefty").classList.remove("nohover");
+    document.getElementById("righty").classList.remove("nohover");
   }
 }
 
@@ -143,7 +161,6 @@ function uniformImages() {
     const ih = window.innerHeight;
     const maxHeight = ih / numRows - numRows * 5; //(some sort of gap)
     const h = Math.min(maxHeight, mostCommonH);
-    console.log(ih, maxHeight, h);
     for (let wrap of wrappers) {
       wrap.style.width = `${mostCommonW}px`;
       wrap.style.height = `${h}px`;
