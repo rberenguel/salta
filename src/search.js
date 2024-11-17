@@ -1,11 +1,14 @@
 export { textHandler };
-import { setupGrid } from "./arrange.js";
+import { setupGrid, uniformImages } from "./arrange.js";
 let searchText = "";
 
 const container = document.getElementById("screenshots-container");
 
-const highlightingFilter = (opts) =>
-  `sepia(${opts.sepia}) saturate(${opts.saturation})`;
+// This looked great when there was no dynamic filtering:
+// sepia(${opts.sepia}) saturate(${opts.saturation})
+const highlightingFilter = (opts) =>  ``;
+
+// Note that with dinamic filtering, other tabs no longer show in any way.
 const boringFilter = (opts) =>
   `saturate(${1 / opts.saturation}) blur(${opts.blur}em)`;
 
@@ -88,4 +91,5 @@ const filterTabs = (text) => {
     filterTextElement.style.display = "none";
   }
   setupGrid();
+  uniformImages()
 };

@@ -1,5 +1,5 @@
 import { textHandler } from "./search.js";
-import { setupGrid } from "./arrange.js";
+import { setupGrid, uniformImages } from "./arrange.js";
 const container = document.getElementById("screenshots-container");
 
 let flags = { shouldHover: false };
@@ -156,49 +156,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
-function uniformImages() {
-  // Reset everything, wait a few milliseconds for it to redraw and then find the
-  // most common image size. Then apply that to every wrapper.
-  const vizConts = Array.from(
-    container.querySelectorAll(".image-container"),
-  ).filter((c) => c.style.display != "none");
-  const imgs = vizConts.map((c) => c.querySelector("img"));
-  const wrappers = container.querySelectorAll(".image-wrapper");
-  for (let wrapper of wrappers) {
-    wrapper.style.width = "auto";
-    wrapper.style.height = "auto";
-  }
-  setTimeout(() => {
-    let ws = {};
-    let hs = {};
-    for (let img of imgs) {
-      const cbr = img.getBoundingClientRect();
-      const w = cbr.width;
-      const h = cbr.height;
-      ws[w] = (ws[w] || 0) + 1;
-      hs[h] = (hs[h] || 0) + 1;
-    }
-    let maxWCount = 0;
-    let mostCommonW = null;
-    for (const w in ws) {
-      if (ws[w] > maxWCount) {
-        maxWCount = ws[w];
-        mostCommonW = parseFloat(w);
-      }
-    }
-
-    let maxHCount = 0;
-    let mostCommonH = null;
-    for (const h in hs) {
-      if (hs[h] > maxHCount) {
-        maxHCount = hs[h];
-        mostCommonH = parseFloat(h);
-      }
-    }
-    for (let wrap of wrappers) {
-      wrap.style.width = `${mostCommonW}px`;
-      wrap.style.height = `${mostCommonH}px`;
-    }
-  }, 50);
-}
