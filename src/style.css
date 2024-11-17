@@ -89,10 +89,14 @@ body {
   right: 1em;
   top: 1em;
   cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  transform: translateX(0em);
 }
 
 .close:hover {
   filter: drop-shadow(0 0 0.1em #c11);
+  transform-origin: 50% 50%;
+  transform: scale(2.3);
 }
 
 .screenshot-thumbnail {
@@ -134,4 +138,24 @@ body {
   border-radius: 5px;
   z-index: 1001;
   display: none;
+}
+
+#the-info {
+  position: fixed;
+  font-family: "Monoid";
+  top: 25vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  color: white;
+  background-color: rgba(10, 10, 10, 0.7);
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid white;
+  z-index: 1001;
+  display: block;
+  opacity: 0;
+  transition:
+    opacity 0.5s ease-in,
+    opacity 1s ease-out;
 }

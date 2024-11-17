@@ -19,7 +19,7 @@ document.getElementById("lefty").addEventListener("mouseenter", (ev) => {
     currentPage = 0;
   }
   lastInc = current;
-  setupGrid();
+  setupGrid({ paging: true });
 });
 
 document.getElementById("righty").addEventListener("mouseenter", (ev) => {
@@ -33,10 +33,10 @@ document.getElementById("righty").addEventListener("mouseenter", (ev) => {
   }
 
   lastInc = current;
-  setupGrid();
+  setupGrid({ paging: true });
 });
 
-function setupGrid() {
+function setupGrid(settings = {}) {
   // Translates depend on the row, and rows can change when tabs are closed
   // when pressing the red X icon.
 
@@ -44,10 +44,20 @@ function setupGrid() {
     container.querySelectorAll(".image-container"),
   );
 
+  const info = document.getElementById("the-info");
+
   const selectedContainers = Array.from(
     container.querySelectorAll(".image-container"),
   ).filter((c) => c.dataset["selected"] === "true");
-
+  let text = `${selectedContainers.length} tabs`;
+  if (settings.paging) {
+    text += `    <span style="font-size: 70%;">(page ${currentPage}/${totalPages})</span>`;
+  }
+  info.innerHTML = text;
+  info.style.opacity = "1";
+  setTimeout(() => {
+    info.style.opacity = "0";
+  }, 1000);
   let imgContainers;
 
   if (allContainers.length > maxPerPage) {
@@ -63,7 +73,7 @@ function setupGrid() {
   let imgIndex = 0;
 
   const total = imgContainers.length;
-  totalPages = Math.trunc(total / maxPerPage);
+  totalPages = Math.trunc((total - 1) / maxPerPage);
   const adjusted = Math.min(maxPerPage, total);
 
   numCols = Math.ceil(Math.sqrt(adjusted));
