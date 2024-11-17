@@ -20,7 +20,7 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
   - If only one tab matches, pressing enter opens it.
   - Press `Escape` to cancel, or delete to remove text.
 
-## Demo video
+## Demo video (a couple minor versions old)
 
 Click the image to open the video (youtube). If you don't want to do that, you can find the video in `media/salta-demo-v01.mov`.
 
