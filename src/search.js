@@ -1,5 +1,5 @@
 export { textHandler };
-
+import { setupGrid } from "./arrange.js";
 let searchText = "";
 
 const container = document.getElementById("screenshots-container");
@@ -87,4 +87,5 @@ const filterTabs = (text) => {
   } else {
     filterTextElement.style.display = "none";
   }
+  setupGrid();
 };

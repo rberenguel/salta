@@ -4,6 +4,34 @@ body {
   overflow: hidden;
 }
 
+#lefty {
+  position: fixed;
+  left: 0;
+  width: 4%;
+  height: 100%;
+  z-index: 10000;
+  transition: filter 0.8s ease;
+}
+
+#lefty:hover {
+  background: linear-gradient(to right, #33333399, #00000000);
+  filter: drop-shadow(0 0 0.1em #c11);
+}
+
+#righty {
+  position: fixed;
+  right: 0;
+  width: 3%;
+  height: 100%;
+  z-index: 10000;
+  transition: filter 0.8s ease;
+}
+
+#righty:hover {
+  background: linear-gradient(to left, #33333399, #00000000);
+  filter: drop-shadow(0 0 0.1em #c11);
+}
+
 #screenshots-container {
   display: grid;
   gap: 1em;

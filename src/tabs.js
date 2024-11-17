@@ -1,5 +1,5 @@
 import { textHandler } from "./search.js";
-
+import { setupGrid } from "./arrange.js";
 const container = document.getElementById("screenshots-container");
 
 let flags = { shouldHover: false };
@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
           const infoDiv = document.createElement("div");
 
           const imgContainer = document.createElement("div");
+          imgContainer.dataset["selected"] = true;
           imgContainer.dataset["hovers"] = true;
           imgContainer.dataset["tabId"] = id;
           imgContainer.classList.add("image-container");
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
             chrome.tabs.remove(id);
             imgContainer.parentElement.removeChild(imgContainer);
             uniformImages();
-            addTranslates();
+            setupGrid();
           });
           closer.addEventListener("mouseover", (ev) => ev.stopPropagation());
           imgWrapper.appendChild(closer);
@@ -149,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
       setTimeout(() => {
-        addTranslates();
+        setupGrid();
         uniformImages();
       }, 100);
     });
@@ -159,7 +160,10 @@ document.addEventListener("DOMContentLoaded", function () {
 function uniformImages() {
   // Reset everything, wait a few milliseconds for it to redraw and then find the
   // most common image size. Then apply that to every wrapper.
-  const imgs = container.querySelectorAll(".image-container img");
+  const vizConts = Array.from(
+    container.querySelectorAll(".image-container"),
+  ).filter((c) => c.style.display != "none");
+  const imgs = vizConts.map((c) => c.querySelector("img"));
   const wrappers = container.querySelectorAll(".image-wrapper");
   for (let wrapper of wrappers) {
     wrapper.style.width = "auto";
@@ -197,49 +201,4 @@ function uniformImages() {
       wrap.style.height = `${mostCommonH}px`;
     }
   }, 50);
-}
-
-function addTranslates() {
-  // Translates depend on the row, and rows can change when tabs are closed
-  // when pressing the red X icon.
-  const imgContainers = Array.from(
-    container.querySelectorAll(".image-container"),
-  );
-
-  let imgIndex = 0;
-
-  const numCols = Math.ceil(Math.sqrt(imgContainers.length));
-  const numRows = Math.ceil(imgContainers.length / numCols);
-
-  container.style.display = "grid";
-  container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
-  container.style.gridTemplateRows = `repeat(${numRows},   
-     auto)`;
-
-  for (let container of imgContainers) {
-    const img = container.querySelector("img");
-    const wrapper = container.querySelector(".image-wrapper");
-
-    const row = Math.floor(imgIndex / numCols);
-    const col = imgIndex % numCols;
-
-    let translateX = 0;
-    let translateY = 0;
-
-    if (row === 0) {
-      translateY = "40%";
-    } else if (row === numRows - 1) {
-      translateY = "-40%";
-    }
-
-    if (col === 0) {
-      translateX = "40%";
-    } else if (col === numCols - 1) {
-      translateX = "-40%";
-    }
-    img.id = `img-${row}-${col}`;
-    wrapper.dataset["tx"] = translateX;
-    wrapper.dataset["ty"] = translateY;
-    imgIndex++;
-  }
 }

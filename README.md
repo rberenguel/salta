@@ -45,7 +45,8 @@ Click the image to open the video (youtube). If you don't want to do that, you c
 - [ ] Can I test anything easily?
 - [x] Add an `X` so I can cross tabs from this view.
   - [x] This requires a refactor of all the internal grid construction logic.
-- [ ] I may need pagination if there are _way_ too many tabs open.
+- [x] I may need pagination if there are _way_ too many tabs open.
+  - [ ] Pagination-hover highlighting should not trigger when there are no more pages.
 - [ ] Handle multiple (as in separate) windows.
 - [ ] Add some proper event listener instead of the hacky timeout to resize.
 
