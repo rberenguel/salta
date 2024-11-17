@@ -6,7 +6,7 @@ const container = document.getElementById("screenshots-container");
 
 // This looked great when there was no dynamic filtering:
 // sepia(${opts.sepia}) saturate(${opts.saturation})
-const highlightingFilter = (opts) =>  ``;
+const highlightingFilter = (opts) => ``;
 
 // Note that with dinamic filtering, other tabs no longer show in any way.
 const boringFilter = (opts) =>
@@ -91,5 +91,5 @@ const filterTabs = (text) => {
     filterTextElement.style.display = "none";
   }
   setupGrid();
-  uniformImages()
+  uniformImages();
 };

@@ -7,6 +7,7 @@ const maxPerPage = 25;
 let currentPage = 0;
 let totalPages;
 let lastInc = 0;
+let numCols, numRows;
 
 document.getElementById("lefty").addEventListener("mouseenter", (ev) => {
   const current = Date.now();
@@ -51,8 +52,8 @@ function setupGrid() {
   totalPages = Math.trunc(total / maxPerPage);
   const adjusted = Math.min(maxPerPage, total);
 
-  const numCols = Math.ceil(Math.sqrt(adjusted));
-  const numRows = Math.ceil(adjusted / numCols);
+  numCols = Math.ceil(Math.sqrt(adjusted));
+  numRows = Math.ceil(adjusted / numCols);
 
   container.style.display = "grid";
   container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
@@ -100,50 +101,52 @@ function setupGrid() {
   }
 }
 
-
 function uniformImages() {
-    // Reset everything, wait a few milliseconds for it to redraw and then find the
-    // most common image size. Then apply that to every wrapper.
-    const vizConts = Array.from(
-      container.querySelectorAll(".image-container"),
-    ).filter((c) => c.style.display != "none");
-    const imgs = vizConts.map((c) => c.querySelector("img"));
-    const wrappers = container.querySelectorAll(".image-wrapper");
-    for (let wrapper of wrappers) {
-      wrapper.style.width = "auto";
-      wrapper.style.height = "auto";
-    }
-    setTimeout(() => {
-      let ws = {};
-      let hs = {};
-      for (let img of imgs) {
-        const cbr = img.getBoundingClientRect();
-        const w = cbr.width;
-        const h = cbr.height;
-        ws[w] = (ws[w] || 0) + 1;
-        hs[h] = (hs[h] || 0) + 1;
-      }
-      let maxWCount = 0;
-      let mostCommonW = null;
-      for (const w in ws) {
-        if (ws[w] > maxWCount) {
-          maxWCount = ws[w];
-          mostCommonW = parseFloat(w);
-        }
-      }
-  
-      let maxHCount = 0;
-      let mostCommonH = null;
-      for (const h in hs) {
-        if (hs[h] > maxHCount) {
-          maxHCount = hs[h];
-          mostCommonH = parseFloat(h);
-        }
-      }
-      for (let wrap of wrappers) {
-        wrap.style.width = `${mostCommonW}px`;
-        wrap.style.height = `${mostCommonH}px`;
-      }
-    }, 50);
+  // Reset everything, wait a few milliseconds for it to redraw and then find the
+  // most common image size. Then apply that to every wrapper.
+  const vizConts = Array.from(
+    container.querySelectorAll(".image-container"),
+  ).filter((c) => c.style.display != "none");
+  const imgs = vizConts.map((c) => c.querySelector("img"));
+  const wrappers = container.querySelectorAll(".image-wrapper");
+  for (let wrapper of wrappers) {
+    wrapper.style.width = "auto";
+    wrapper.style.height = "auto";
   }
-  
+  setTimeout(() => {
+    let ws = {};
+    let hs = {};
+    for (let img of imgs) {
+      const cbr = img.getBoundingClientRect();
+      const w = cbr.width;
+      const h = cbr.height;
+      ws[w] = (ws[w] || 0) + 1;
+      hs[h] = (hs[h] || 0) + 1;
+    }
+    let maxWCount = 0;
+    let mostCommonW = null;
+    for (const w in ws) {
+      if (ws[w] > maxWCount) {
+        maxWCount = ws[w];
+        mostCommonW = parseFloat(w);
+      }
+    }
+
+    let maxHCount = 0;
+    let mostCommonH = null;
+    for (const h in hs) {
+      if (hs[h] > maxHCount) {
+        maxHCount = hs[h];
+        mostCommonH = parseFloat(h);
+      }
+    }
+    const ih = window.innerHeight;
+    const maxHeight = ih / numRows - numRows * 5; //(some sort of gap)
+    const h = Math.min(maxHeight, mostCommonH);
+    console.log(ih, maxHeight, h);
+    for (let wrap of wrappers) {
+      wrap.style.width = `${mostCommonW}px`;
+      wrap.style.height = `${h}px`;
+    }
+  }, 50);
+}
