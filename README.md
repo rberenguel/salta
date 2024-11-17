@@ -13,12 +13,15 @@ A Chrome extension to visually jump across tabs. I wanted to see if I could do i
 When invoking the extension (keyboard shortcut, internal Chrome extension messaging, or pressing the extension button) a new tab with images of all your tabs will open.
 
 - Clicking any of the images takes you to that tab.
+  - `Cmd+click` (`Meta+click`, technically) to go to that tab without closing the `Salta` page.
 - Pressing `Ctrl` or `Tab` will enable/disable zoom-on-hover on the screenshots.
 - Typing anything in the page will filter pages containing that text in the title or URL.
+  - Filtering preserves pagination until only one page is filled.
   - Matching tabs are highlighted (highlighted border, hypersaturated).
   - If zoom-on-hover is enabled, only highlighted tabs will get it.
   - If only one tab matches, pressing enter opens it.
   - Press `Escape` to cancel, or delete to remove text.
+- You can close tabs by pressing the red cross on the upper-right. This will cause a redraw.
 
 ## Demo video (a couple minor versions old)
 
@@ -41,13 +44,13 @@ Click the image to open the video (youtube). If you don't want to do that, you c
 ## TODO
 
 - [x] Clean up a bit the code
-- [ ] Clean up a bit the code (needs more passes)
+- [x] Clean up a bit the code (needs more passes)
 - [ ] Can I test anything easily?
 - [x] Add an `X` so I can cross tabs from this view.
   - [x] This requires a refactor of all the internal grid construction logic.
 - [x] I may need pagination if there are _way_ too many tabs open.
   - [ ] Pagination-hover highlighting should not trigger when there are no more pages.
-- [ ] Handle multiple (as in separate) windows.
+- [x] Handle multiple (as in separate) windows. Turns out it works by default
 - [ ] Add some proper event listener instead of the hacky timeout to resize.
 
 ## Credits

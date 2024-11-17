@@ -131,13 +131,19 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           img.alt = `Screenshot of ${url}`;
 
-          imgWrapper.addEventListener("click", function () {
+          imgWrapper.addEventListener("click", (ev) => {
             chrome.tabs.update(parseInt(id), { active: true });
+            if (ev.metaKey) {
+              return;
+            }
             window.close();
           });
 
           infoDiv.addEventListener("click", function () {
             chrome.tabs.update(parseInt(id), { active: true });
+            if (ev.metaKey) {
+              return;
+            }
             window.close();
           });
 
