@@ -1,6 +1,8 @@
 export { textHandler };
-import { setupGrid, uniformImages } from "./arrange.js";
+import { setupGrid, uniformImages, globals } from "./arrange.js";
+
 let searchText = "";
+let formerPage = 0;
 
 const container = document.getElementById("screenshots-container");
 
@@ -23,6 +25,13 @@ const textHandler = (flags) => (event) => {
     searchText = searchText.slice(0, -1);
   } else if (event.key === "Escape") {
     searchText = "";
+    if (globals.currentPage === formerPage) {
+      // Press Esc twice to go to the first page
+      globals.currentPage = 0;
+      formerPage = 0;
+    } else {
+      globals.currentPage = formerPage;
+    }
   } else if (event.key === "Enter") {
     const imgContainers = container.querySelectorAll(".image-container");
     const matches = Array.from(imgContainers).filter(
@@ -35,6 +44,10 @@ const textHandler = (flags) => (event) => {
     }
   } else if (event.key.length === 1) {
     searchText += event.key;
+    if (!formerPage) {
+      formerPage = globals.currentPage;
+    }
+    globals.currentPage = 0;
   }
 
   filterTabs(searchText);
@@ -55,7 +68,7 @@ const filterTabs = (text) => {
     const tabURL = infoDiv.dataset["url"];
     const baseFilter = img.dataset["filter"] ?? "";
     const saturation = text.length; // Math.sqrt was a bit too slow
-    const sepia = 1 - 1 / text.length;
+    const sepia = 0.7 - 1 / text.length;
     const highlighted = highlightingFilter({
       sepia: sepia,
       saturation: saturation,

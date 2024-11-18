@@ -4,6 +4,52 @@ const container = document.getElementById("screenshots-container");
 
 let flags = { shouldHover: false };
 
+// Split out this event handler, eventually all will be out.
+document.addEventListener("click", (ev) => {
+  if (ev.target === document.body) {
+    return;
+  }
+  if (ev.target.id === "screenshots-container") {
+    return;
+  }
+  const cont = ev.target.closest(".image-container");
+  const tabId = cont ? parseInt(cont.dataset["tabId"]) : undefined;
+  if (ev.target.closest(".close")) {
+    ev.stopPropagation();
+    chrome.tabs.remove(tabId);
+    cont.dataset["gone"] = true;
+    setupGrid();
+    uniformImages();
+    return;
+  }
+
+  if (container) {
+    chrome.tabs.update(tabId, { active: true });
+    if (ev.metaKey) {
+      return;
+    }
+    window.close();
+  }
+});
+
+function debounce(func, delay) {
+  let timeoutId;
+  return function () {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, arguments);
+    }, delay);
+  };
+}
+
+window.addEventListener(
+  "resize",
+  debounce(() => {
+    setupGrid();
+    uniformImages();
+  }, 250),
+);
+
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
     let placeholderish;
@@ -46,15 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
           const closer = document.createElement("DIV");
           closer.classList.add("close");
           closer.innerHTML = "&#x274C;";
-          closer.addEventListener("click", (ev) => {
-            ev.stopPropagation();
-            chrome.tabs.remove(id);
-            imgContainer.parentElement.removeChild(imgContainer);
-            // TODO(me) this needs the stable logic that I added for search to prevent redrawing.
-            // TODO(me) shadow DOM instead?
-            uniformImages();
-            setupGrid();
-          });
           closer.addEventListener("mouseover", (ev) => ev.stopPropagation());
           imgWrapper.appendChild(closer);
 
@@ -73,7 +110,14 @@ document.addEventListener("DOMContentLoaded", function () {
             );
             const tx = imgWrapper.dataset["tx"];
             const ty = imgWrapper.dataset["ty"];
-            imgWrapper.style.transform = `scale(1.5) translate(${tx}, ${ty})`;
+            const windowWidth = window.innerWidth;
+
+            const imageWidth = imgWrapper.offsetWidth;
+            const scaleFactor = (windowWidth * 0.7) / imageWidth;
+
+            imgWrapper.style.transform = `scale(${scaleFactor}) translate(${tx}, ${ty})`;
+
+            //imgWrapper.style.transform = `scale(1.5) translate(${tx}, ${ty})`;
             imgWrapper.style.zIndex = "1000";
             imgContainer.style.zIndex = "1000";
           });
@@ -130,22 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
             img.src = screenshot;
           }
           img.alt = `Screenshot of ${url}`;
-
-          imgWrapper.addEventListener("click", (ev) => {
-            chrome.tabs.update(parseInt(id), { active: true });
-            if (ev.metaKey) {
-              return;
-            }
-            window.close();
-          });
-
-          infoDiv.addEventListener("click", function () {
-            chrome.tabs.update(parseInt(id), { active: true });
-            if (ev.metaKey) {
-              return;
-            }
-            window.close();
-          });
 
           container.appendChild(imgContainer);
 

@@ -1,22 +1,26 @@
-export { setupGrid, uniformImages };
+export { setupGrid, uniformImages, globals };
 
 const container = document.getElementById("screenshots-container");
-
+const hiddenContainer = document.getElementById("hidden-screenshots-container");
 const maxPerPage = 25;
 
-let currentPage = 0;
-let totalPages;
+let globals = {
+  currentPage: 0,
+  totalPages: null,
+  numCols: null,
+  numRows: null,
+};
+
 let lastInc = 0;
-let numCols, numRows;
 
 document.getElementById("lefty").addEventListener("mouseenter", (ev) => {
   const current = Date.now();
   if (current - lastInc < 500) {
     return;
   }
-  currentPage -= 1;
-  if (currentPage < 0) {
-    currentPage = 0;
+  globals.currentPage -= 1;
+  if (globals.currentPage < 0) {
+    globals.currentPage = 0;
   }
   lastInc = current;
   setupGrid({ paging: true });
@@ -27,9 +31,9 @@ document.getElementById("righty").addEventListener("mouseenter", (ev) => {
   if (current - lastInc < 500) {
     return;
   }
-  currentPage += 1;
-  if (currentPage > totalPages) {
-    currentPage = totalPages;
+  globals.currentPage += 1;
+  if (globals.currentPage > globals.totalPages) {
+    globals.currentPage = globals.totalPages;
   }
 
   lastInc = current;
@@ -42,16 +46,18 @@ function setupGrid(settings = {}) {
 
   const allContainers = Array.from(
     container.querySelectorAll(".image-container"),
-  );
+  ).filter((c) => c.dataset["gone"] !== "true");
 
   const info = document.getElementById("the-info");
 
   const selectedContainers = Array.from(
     container.querySelectorAll(".image-container"),
-  ).filter((c) => c.dataset["selected"] === "true");
+  ).filter(
+    (c) => c.dataset["selected"] === "true" && c.dataset["gone"] !== "true",
+  );
   let text = `${selectedContainers.length} tabs`;
   if (settings.paging) {
-    text += `    <span style="font-size: 70%;">(page ${currentPage + 1}/${totalPages + 1})</span>`;
+    text += `    <span style="font-size: 70%;">(page ${globals.currentPage + 1}/${globals.totalPages + 1})</span>`;
   }
   info.innerHTML = text;
   info.style.opacity = "1";
@@ -59,7 +65,9 @@ function setupGrid(settings = {}) {
     info.style.opacity = "0";
   }, 1000);
   let imgContainers;
-
+  Array.from(container.querySelectorAll(".image-container"))
+    .filter((c) => c.dataset["gone"] === "true")
+    .map((c) => (c.style.display = "none"));
   if (allContainers.length > maxPerPage) {
     imgContainers = selectedContainers;
 
@@ -73,54 +81,54 @@ function setupGrid(settings = {}) {
   let imgIndex = 0;
 
   const total = imgContainers.length;
-  totalPages = Math.trunc((total - 1) / maxPerPage);
+  globals.totalPages = Math.trunc((total - 1) / maxPerPage);
   const adjusted = Math.min(maxPerPage, total);
 
-  numCols = Math.ceil(Math.sqrt(adjusted));
-  numRows = Math.ceil(adjusted / numCols);
+  globals.numCols = Math.ceil(Math.sqrt(adjusted));
+  globals.numRows = Math.ceil(adjusted / globals.numCols);
 
   container.style.display = "grid";
-  container.style.gridTemplateColumns = `repeat(${numCols}, 1fr)`;
-  container.style.gridTemplateRows = `repeat(${numRows}, auto)`;
+  container.style.gridTemplateColumns = `repeat(${globals.numCols}, 1fr)`;
+  container.style.gridTemplateRows = `repeat(${globals.numRows}, auto)`;
+  hiddenContainer.style.display = "grid";
+  hiddenContainer.style.gridTemplateColumns = `repeat(${globals.numCols}, 1fr)`;
+  hiddenContainer.style.gridTemplateRows = `repeat(${globals.numRows}, auto)`;
 
   for (let cont of imgContainers) {
     const page = Math.trunc(imgIndex / maxPerPage);
     const img = cont.querySelector("img");
     const wrapper = cont.querySelector(".image-wrapper");
 
-    const row = Math.floor(imgIndex / numCols);
-    const col = imgIndex % numCols;
+    const row = Math.floor(imgIndex / globals.numCols);
+    const col = imgIndex % globals.numCols;
 
     let translateX = 0;
     let translateY = 0;
 
     if (row === 0) {
       translateY = "40%";
-    } else if (row === numRows - 1) {
+    } else if (row === globals.numRows - 1) {
       translateY = "-40%";
     }
 
     if (col === 0) {
       translateX = "40%";
-    } else if (col === numCols - 1) {
+    } else if (col === globals.numCols - 1) {
       translateX = "-40%";
     }
     img.id = `img-${row}-${col}`;
     wrapper.dataset["tx"] = translateX;
     wrapper.dataset["ty"] = translateY;
     wrapper.dataset["page"] = page;
-    if (page == currentPage) {
+    if (page == globals.currentPage) {
       cont.style.display = "";
     } else {
       cont.style.display = "none";
     }
-    if (cont.dataset["selected"] === "false") {
-      //cont.style.display = "none";
-    }
     imgIndex++;
   }
 
-  if (totalPages < 1) {
+  if (globals.totalPages < 1) {
     document.getElementById("lefty").classList.add("nohover");
     document.getElementById("righty").classList.add("nohover");
   } else {
@@ -131,12 +139,20 @@ function setupGrid(settings = {}) {
 
 function uniformImages() {
   // Reset everything, wait a few milliseconds for it to redraw and then find the
-  // most common image size. Then apply that to every wrapper.
+  // most common image size. Then apply that to every wrapper. Done in a separate
+  // div that is hidden to reduce jiggling.
+
+  const containers = container.querySelectorAll(".image-container");
+  containers.forEach((div) => {
+    const clonedDiv = div.cloneNode(true);
+    hiddenContainer.appendChild(clonedDiv);
+  });
   const vizConts = Array.from(
-    container.querySelectorAll(".image-container"),
+    hiddenContainer.querySelectorAll(".image-container"),
   ).filter((c) => c.style.display != "none");
+  const wrappers = hiddenContainer.querySelectorAll(".image-wrapper");
+  const vizWrappers = container.querySelectorAll(".image-wrapper");
   const imgs = vizConts.map((c) => c.querySelector("img"));
-  const wrappers = container.querySelectorAll(".image-wrapper");
   for (let wrapper of wrappers) {
     wrapper.style.width = "auto";
     wrapper.style.height = "auto";
@@ -146,8 +162,8 @@ function uniformImages() {
     let hs = {};
     for (let img of imgs) {
       const cbr = img.getBoundingClientRect();
-      const w = cbr.width;
-      const h = cbr.height;
+      const w = Math.round(cbr.width);
+      const h = Math.round(cbr.height);
       ws[w] = (ws[w] || 0) + 1;
       hs[h] = (hs[h] || 0) + 1;
     }
@@ -159,7 +175,6 @@ function uniformImages() {
         mostCommonW = parseFloat(w);
       }
     }
-
     let maxHCount = 0;
     let mostCommonH = null;
     for (const h in hs) {
@@ -169,11 +184,15 @@ function uniformImages() {
       }
     }
     const ih = window.innerHeight;
-    const maxHeight = ih / numRows - numRows * 5; //(some sort of gap)
+    const maxHeight = ih / globals.numRows - globals.numRows * 5; //(some sort of gap)
     const h = Math.min(maxHeight, mostCommonH);
-    for (let wrap of wrappers) {
-      wrap.style.width = `${mostCommonW}px`;
-      wrap.style.height = `${h}px`;
-    }
-  }, 50);
+    setTimeout(() => {
+      for (let wrap of vizWrappers) {
+        wrap.style.width = `${mostCommonW + 4}px`;
+        wrap.style.height = `${h + 4}px`;
+      }
+    }, 10);
+
+    //hiddenContainer.innerHTML = ""
+  }, 100);
 }

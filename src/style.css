@@ -50,10 +50,15 @@ body {
   filter: none;
 }
 
-#screenshots-container {
+#screenshots-container,
+#hidden-screenshots-container {
   display: grid;
   gap: 1em;
   padding: 0.5em;
+}
+
+#hidden-screenshots-container {
+  visibility: hidden;
 }
 
 .image-container {
