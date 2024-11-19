@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Salta",
   "description": "Jump tabs, potentially",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "permissions": ["tabs", "activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "action": {

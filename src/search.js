@@ -24,6 +24,11 @@ const textHandler = (flags) => (event) => {
   if (event.key === "Backspace") {
     searchText = searchText.slice(0, -1);
   } else if (event.key === "Escape") {
+    if (flags.shouldHover && searchText === "") {
+      // If we are not searching, pressed esc, and are hovering,
+      // from experience we wanted it to stop.
+      flags.shouldHover = false;
+    }
     searchText = "";
     if (globals.currentPage === formerPage) {
       // Press Esc twice to go to the first page

@@ -50,9 +50,13 @@ window.addEventListener(
   }, 250),
 );
 
+const isNewTab = (tab) => tab.title === "chrome://newtab";
+
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
-    let placeholderish;
+    // I seemed to have issues with having more than one new tab screenshot. I'm not sure if
+    // it was a fluke, but just in case.
+    let placeholderish, newTabScreenshot;
     chrome.storage.local.get("screenshots", function (data) {
       if (data.screenshots) {
         document.addEventListener("keydown", textHandler(flags));
@@ -61,10 +65,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
         for (const tab of tabs) {
           const { id, url } = tab;
-          if (tab.title === "chrome://newtab") {
+          // Although I think removing new tab is a good idea _in principle_
+          // I have a tendency to open a lot of them (since my new tab extension
+          // makes it convenient, to go to places). So… This is now optional.
+          // Uncomment if you want them to go
+          /*if (tab.title === "chrome://newtab") {
             continue;
-          }
-          if (tab.url.startsWith("chrome://")) {
+          }*/
+          if (
+            tab.url.startsWith("chrome://" && tab.title !== "chrome://newtab")
+          ) {
             continue;
           }
           if (url.endsWith("src/tabs.html")) {
@@ -97,7 +107,10 @@ document.addEventListener("DOMContentLoaded", function () {
           const lastBlocks = last.split("?");
           last = lastBlocks.length > 1 ? lastBlocks[0] + "?(…)" : last;
           const shortURL = `${shortDomain}/${rest}/${last}`;
-          const fancyHover = `${tab.title}\n${shortURL}`;
+          let fancyHover = `${tab.title}\n${shortURL}`;
+          if (shortURL.startsWith(".chrome://")) {
+            fancyHover = tab.title;
+          }
           imgContainer.dataset["title"] = fancyHover;
           imgContainer.classList.add("image-container");
           imgContainer.appendChild(img);
@@ -136,7 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             imgWrapper.style.transform = `scale(${scaleFactor}) translate(${tx}, ${ty})`;
 
-            //imgWrapper.style.transform = `scale(1.5) translate(${tx}, ${ty})`;
             imgWrapper.style.zIndex = "1000";
             imgContainer.style.zIndex = "1000";
           });
@@ -183,12 +195,19 @@ document.addEventListener("DOMContentLoaded", function () {
               img.dataset["filter"] = "blur(8em)";
               img.style.filter = img.dataset["filter"];
             } else {
-              img.src =
-                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+              if (isNewTab(tab) && newTabScreenshot) {
+                img.src = newTabScreenshot;
+              } else {
+                img.src =
+                  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+              }
             }
           } else {
             if (!placeholderish) {
               placeholderish = screenshot;
+            }
+            if (isNewTab(tab) && !newTabScreenshot) {
+              newTabScreenshot = img.src;
             }
             img.src = screenshot;
           }

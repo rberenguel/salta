@@ -115,7 +115,7 @@ function setupGrid(settings = {}) {
 
     if (row === 0) {
       translateY = "40%";
-    } else if (row === globals.numRows - 1) {
+    } else if (row === globals.numRows - 1 && row != 1) {
       translateY = "-40%";
     }
 
