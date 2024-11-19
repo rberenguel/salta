@@ -57,7 +57,9 @@ function setupGrid(settings = {}) {
   );
   let text = `${selectedContainers.length} tabs`;
   if (settings.paging) {
-    text += `    <span style="font-size: 70%;">(page ${globals.currentPage + 1}/${globals.totalPages + 1})</span>`;
+    text += `    <span style="font-size: 70%;">(page ${
+      globals.currentPage + 1
+    }/${globals.totalPages + 1})</span>`;
   }
   info.innerHTML = text;
   info.style.opacity = "1";
@@ -67,13 +69,19 @@ function setupGrid(settings = {}) {
   let imgContainers;
   Array.from(container.querySelectorAll(".image-container"))
     .filter((c) => c.dataset["gone"] === "true")
-    .map((c) => (c.style.display = "none"));
+    .map((c) => {
+      c.style.display = "none";
+      c.style.opacity = 0;
+    });
   if (allContainers.length > maxPerPage) {
     imgContainers = selectedContainers;
 
     Array.from(container.querySelectorAll(".image-container"))
       .filter((c) => c.dataset["selected"] === "false")
-      .map((c) => (c.style.display = "none"));
+      .map((c) => {
+        c.style.display = "none";
+        c.style.opacity = 0;
+      });
   } else {
     imgContainers = allContainers;
   }
@@ -122,7 +130,11 @@ function setupGrid(settings = {}) {
     wrapper.dataset["page"] = page;
     if (page == globals.currentPage) {
       cont.style.display = "";
+      setTimeout(() => {
+        wrapper.style.opacity = 1;
+      }, 10);
     } else {
+      wrapper.style.opacity = 0.3;
       cont.style.display = "none";
     }
     imgIndex++;
@@ -156,6 +168,7 @@ function uniformImages() {
   for (let wrapper of wrappers) {
     wrapper.style.width = "auto";
     wrapper.style.height = "auto";
+    wrapper.style.opacity = 0.3;
   }
   setTimeout(() => {
     let ws = {};
@@ -193,6 +206,6 @@ function uniformImages() {
       }
     }, 10);
 
-    //hiddenContainer.innerHTML = ""
+    hiddenContainer.innerHTML = "";
   }, 100);
 }

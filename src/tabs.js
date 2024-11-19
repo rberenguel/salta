@@ -80,6 +80,25 @@ document.addEventListener("DOMContentLoaded", function () {
           imgContainer.dataset["selected"] = true;
           imgContainer.dataset["hovers"] = true;
           imgContainer.dataset["tabId"] = id;
+
+          const urlBlocks = url
+            .replace("https://", "")
+            .replace("http://", "")
+            .split("/");
+          const domain = urlBlocks[0].split(".");
+          const preTLD = domain.slice(0, domain.length - 1).map((b) => b[0]);
+          const shortDomain =
+            preTLD.join(".") + "." + domain[domain.length - 1];
+          const rest = urlBlocks
+            .slice(1, urlBlocks.length - 1)
+            .map((b) => b[0])
+            .join("/");
+          let last = urlBlocks[urlBlocks.length - 1];
+          const lastBlocks = last.split("?");
+          last = lastBlocks.length > 1 ? lastBlocks[0] + "?(…)" : last;
+          const shortURL = `${shortDomain}/${rest}/${last}`;
+          const fancyHover = `${tab.title}\n${shortURL}`;
+          imgContainer.dataset["title"] = fancyHover;
           imgContainer.classList.add("image-container");
           imgContainer.appendChild(img);
 

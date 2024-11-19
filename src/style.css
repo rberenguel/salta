@@ -1,13 +1,13 @@
 body {
   margin: 0;
-  background-color: #777;
+  background-color: #333;
   overflow: hidden;
 }
 
 #lefty {
   position: fixed;
   left: 0;
-  width: 4%;
+  width: 1em;
   height: 100%;
   z-index: 10000;
   transition: filter 0.8s ease;
@@ -30,7 +30,7 @@ body {
 #righty {
   position: fixed;
   right: 0;
-  width: 3%;
+  width: 1em;
   height: 100%;
   z-index: 10000;
   transition: filter 0.8s ease;
@@ -68,6 +68,25 @@ body {
     height 0.5s ease;
 }
 
+.image-container[data-title]:hover::after {
+  font-family: Monoid;
+  font-size: 110%;
+  content: attr(data-title);
+  margin-left: 15%;
+  top: 35%;
+  width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  z-index: 1000;
+  white-space: pre;
+}
+
 .image-wrapper {
   position: relative;
   overflow: hidden;
@@ -75,6 +94,7 @@ body {
   border: 2px solid black;
   box-sizing: border-box;
   transition:
+    opacity 0.8s ease,
     transform 0.5s ease,
     filter 0.5s ease,
     width 0.5s ease,
@@ -91,8 +111,8 @@ body {
 
 .close {
   position: absolute;
-  right: 1em;
-  top: 1em;
+  right: 1.5em;
+  top: 1.5em;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
   transform: translateX(0em);
@@ -101,7 +121,7 @@ body {
 .close:hover {
   filter: drop-shadow(0 0 0.1em #c11);
   transform-origin: 50% 50%;
-  transform: scale(2.3);
+  transform: scale(2.8);
 }
 
 .screenshot-thumbnail {
