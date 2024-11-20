@@ -3,34 +3,55 @@ import { setupGrid, uniformImages } from "./arrange.js";
 const container = document.getElementById("screenshots-container");
 
 let flags = { shouldHover: false };
+let lastRefreshTime = Date.now();
 
-// Split out this event handler, eventually all will be out.
-document.addEventListener("click", (ev) => {
-  if (ev.target === document.body) {
-    return;
-  }
-  if (ev.target.id === "screenshots-container") {
-    return;
-  }
-  const cont = ev.target.closest(".image-container");
-  const tabId = cont ? parseInt(cont.dataset["tabId"]) : undefined;
-  if (ev.target.closest(".close")) {
-    ev.stopPropagation();
-    chrome.tabs.remove(tabId);
-    cont.dataset["gone"] = true;
-    setupGrid();
-    uniformImages();
-    return;
-  }
-
-  if (container) {
-    chrome.tabs.update(tabId, { active: true });
-    if (ev.metaKey) {
-      return;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    if (Date.now() - lastRefreshTime > 15000) {
+      lastRefreshTime = Date.now();
+      container.innerHTML = "";
+      setupLayout();
     }
-    window.close();
   }
 });
+
+const addGlobalHandlers = () => {
+  document.addEventListener("keydown", textHandler(flags));
+  document.addEventListener("click", (ev) => {
+    if (ev.target === document.body) {
+      return;
+    }
+    if (ev.target.id === "screenshots-container") {
+      return;
+    }
+    const cont = ev.target.closest(".image-container");
+    const tabId = cont ? parseInt(cont.dataset["tabId"]) : undefined;
+    if (ev.target.closest(".close")) {
+      ev.stopPropagation();
+      chrome.tabs.remove(tabId);
+      cont.dataset["gone"] = true;
+      setupGrid();
+      uniformImages();
+      return;
+    }
+
+    if (container) {
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (tabs[0].pinned) {
+          console.info("Salta is pinned, won't close it.");
+        } else {
+          window.close();
+        }
+      });
+      // The order window.close and then switch to the tab,
+      // surprisingly works and feels smoother as a user.
+      chrome.tabs.update(tabId, { active: true });
+      if (ev.metaKey) {
+        return;
+      }
+    }
+  });
+};
 
 function debounce(func, delay) {
   let timeoutId;
@@ -52,14 +73,13 @@ window.addEventListener(
 
 const isNewTab = (tab) => tab.title === "chrome://newtab";
 
-document.addEventListener("DOMContentLoaded", function () {
+const setupLayout = () => {
   chrome.tabs.query({ currentWindow: true }, function (tabs) {
     // I seemed to have issues with having more than one new tab screenshot. I'm not sure if
     // it was a fluke, but just in case.
     let placeholderish, newTabScreenshot;
     chrome.storage.local.get("screenshots", function (data) {
       if (data.screenshots) {
-        document.addEventListener("keydown", textHandler(flags));
         const screenshots = data.screenshots;
         const tabIds = new Set(tabs.map((tab) => tab.id));
 
@@ -70,8 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
           // makes it convenient, to go to places). So… This is now optional.
           // Uncomment if you want them to go
           /*if (tab.title === "chrome://newtab") {
-            continue;
-          }*/
+              continue;
+            }*/
           if (
             tab.url.startsWith("chrome://" && tab.title !== "chrome://newtab")
           ) {
@@ -229,4 +249,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 100);
     });
   });
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  addGlobalHandlers();
+  setupLayout();
 });

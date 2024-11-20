@@ -14,6 +14,8 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
 
 - Clicking any of the images takes you to that tab.
   - `Cmd+click` (`Meta+click`, technically) to go to that tab without closing the `Salta` page.
+  - If you pin the `Salta` page, it won't close when you click on the images for the tabs.
+  - If you leave the page open but not active, it will refresh itself when it comes back (so it is useful when pinned).
 - Pressing `Ctrl` or `Tab` will enable/disable zoom-on-hover on the screenshots.
 - Typing anything in the page will filter pages containing that text in the title or URL.
   - Filtering preserves pagination until only one page is filled.
@@ -21,7 +23,8 @@ When invoking the extension (keyboard shortcut, internal Chrome extension messag
   - If zoom-on-hover is enabled, only highlighted tabs will get it.
   - If only one tab matches, pressing enter opens it.
   - Press `Escape` to cancel, or delete to remove text.
-- You can close tabs by pressing the red cross on the upper-right. This will cause a redraw.
+  - _Note_: Closing everything while filtering will not paginate.
+- You can close tabs by pressing the red cross on the upper-right. This will cause incremental redraw.
 
 ## Demo video (a couple minor versions old)
 
@@ -31,11 +34,11 @@ Click the image to open the video (youtube). If you don't want to do that, you c
 
 ## Caveats
 
-- For now this is assuming one window (I think, I haven't bothered checking what happens with multiple windows… yet)
 - This requires the "all-sites" permission, which is pretty large, I know.
 - There is a slight delay required when switching tabs before an active tab screenshot can be taken. This means that sometimes
   tabs have no valid screenshot. I go around this by picking _any_ of the screenshots seen so far and blurring it heavily, so
   it acts as a placeholder.
+- Sometimes, screenshots refuse to be taken. Either by Chrome screenshot quotas, or because Chrome says nobody has invoked the extension (regardless of whether it is the case or not). It eventually works though.
 - Although this _can_ be invoked from other extensions (I tried that with [nt](https://www.github.com/rberenguel/nt)), `activeTab` is
   an annoying permission and will complain about not having been "properly" invoked. So, the page with tabs shows kind of empty, and you
   need to press `Cmd-R` (or whatever you have as "refresh") to get it to show.
