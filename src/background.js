@@ -6,25 +6,27 @@ chrome.storage.local.get("screenshots", function (data) {
   }
 });
 
-chrome.tabs.onActivated.addListener(function (activeInfo) {
+function captureScreenshot(tabId) {
   setTimeout(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tabId = activeInfo.tabId;
-      if (!tabs) {
-        return;
-      }
-      const currentUrl = tabs[0].url;
-
-      chrome.tabs.captureVisibleTab(
-        null,
-        { format: "jpeg" },
-        function (dataUrl) {
-          screenshots[tabId] = { screenshot: dataUrl, url: currentUrl };
+    chrome.tabs.captureVisibleTab(null, { format: "jpeg" }, function (dataUrl) {
+      chrome.tabs.get(tabId, (tab) => {
+        if (tab) {
+          screenshots[tabId] = { screenshot: dataUrl, url: tab.url };
           chrome.storage.local.set({ screenshots: screenshots });
-        },
-      );
+        }
+      });
     });
   }, 100);
+}
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+  if (changeInfo.url) {
+    captureScreenshot(tabId);
+  }
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  captureScreenshot(activeInfo.tabId);
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
