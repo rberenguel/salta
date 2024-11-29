@@ -200,8 +200,8 @@ const setupLayout = () => {
               return;
             }
           });
-          let title = tab.title.slice(0, 30);
-          if (tab.title.length > 32) {
+          let title = tab.title.slice(0, 40);
+          if (tab.title.length > 42) {
             title += "&hellip;";
           }
           infoDiv.classList.add("screenshot-info");
